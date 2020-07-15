@@ -97,9 +97,9 @@ impl<'a, K, V> IntoIterator for &'a mut VecPair<K, V> {
 
 /// A vec of tuple of key and value.
 /// 
-/// The problem with this approach is the efficiency. If user need to frequently lookup
-/// for key to retrieve a value, it is inefficient to iterate over vec. This is because on each
-/// iteration, it need to read both key and value into stack and only the matched key will use
+/// The problem with this approach is probably efficiency. If user need to frequently lookup
+/// for key to retrieve a value, it is likely inefficient to iterate over vec. This is because on each
+/// iteration, it may need to read both key and value into stack and only the matched key will use
 /// value. All the rest will not touch the value.
 #[derive(Clone)]
 struct TupleVec<K, V> {
@@ -429,9 +429,9 @@ macro_rules! bench_kv {
             push_times.push(push_time);
             // println!("Push done in {}ms {}us {}ns", push_time / 1000000, (push_time / 1000) % 1000, push_time % 1000);
             
-            let found = *collection.iter().find(|(k, v)| {
+            let found = *collection.iter().find(|(k, _v)| {
                 borrow_eq(*k, $max - 1)
-            }).unwrap().0.borrow();
+            }).unwrap().1.borrow();
             
             let iter_time = timer.elapsed().as_nanos() - push_time;
             iter_times.push(iter_time);
@@ -699,8 +699,8 @@ fn main() {
     bench_kv!(TupleVec, PRIME_MAX, SAMPLE);
     println!("================================");
     bench_kv!(VecPair, PRIME_MAX, SAMPLE);
-    const NESTED_MAX: usize = 1_000;
-    const INNER_MAX: usize = 1_000;
+    const NESTED_MAX: usize = 500;
+    const INNER_MAX: usize = 500;
     println!("================================");
     bench_nested!(FlattenVec, NESTED_MAX, INNER_MAX, SAMPLE);
     println!("================================");
